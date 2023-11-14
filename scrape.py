@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 
 # 位置情報からその日の天気を返す
-def get_weather_from_location(original_location):
+def get_weather_from_location_JP(original_location):
   # 住所の中から郵便番号を抽出する
   location = re.findall('\d{3}-\d{4}', original_location)
   # 1回目のスクレイピングでは住所を検索し、候補から取ってくる
@@ -11,7 +11,7 @@ def get_weather_from_location(original_location):
   r = requests.get(url)
   soup = BeautifulSoup(r.text, 'html.parser')
   content = soup.find(class_="serch-table")
-  # 2回目のスクレイピングで用いるURLを得る
+ 
   location_url = content.find('a').get('href')
   r = requests.get(location_url)
   soup = BeautifulSoup(r.text, 'html.parser')
