@@ -14,6 +14,7 @@ from linebot.exceptions import LineBotApiError
 
 import scrape as sc
 import urllib3.request
+from geopy.distance import geodesic
 
 import os
 
@@ -51,26 +52,47 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             [
-                TextSendMessage(text='位置情報を教えてください。'),
+                TextSendMessage(text='Your location Please'),
                 TextSendMessage(text='line://nv/location')
             ]
+        )
+    elif 'weather' in text:
+        result = sc.get_weather_from_english()
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=result)
+        )
+    elif 'CC' in text:
+       
+        user_requests[user_id] = 'cc'
+        line_bot_api.reply_message(
+            event.reply_token,
+            [TextSendMessage(text='Your location Please'), 
+            TextSendMessage(text='line://nv/location')]
         )
     else:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=event.message.text)
         )
+CC_location = ( 35.6547486111, 139.7307916667 )
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
-    text = event.message.address
+    user_id = event.source.user_id
+    user_location = (event.message.latitude, event.message.longitude)
 
-    result = sc.get_weather_from_location_JP(text)
+    if user_requests.get(user_id) == 'weather':
+        result = sc.get_weather_from_location_JP(event.message.address)
+    elif user_requests.get(user_id) == 'cc':
+    
+        distance = geodesic(user_location, cc_location).kilometers
+        result = f'You are  {distance:.2f} km away from Code Chrysalis'
+
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=result)
     )
-
 
 if __name__ == "__main__":
 #    app.run()
