@@ -18,7 +18,6 @@ import urllib3.request
 import os
 
 
-
 app = Flask(__name__)
 
 #環境変数
@@ -45,7 +44,7 @@ def callback():
 
     return 'OK'
 
-
+@handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     text = event.message.text
     if '天気' in text:
@@ -71,21 +70,6 @@ def handle_location(event):
         event.reply_token,
         TextSendMessage(text=result)
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
