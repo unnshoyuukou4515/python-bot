@@ -8,13 +8,20 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage,LocationMessage
 )
+from linebot.exceptions import LineBotApiError
+
+import scrape as sc
+import urllib3.request
+
 import os
+
+
 
 app = Flask(__name__)
 
-#環境変数取得
+#環境変数
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
 
@@ -39,11 +46,46 @@ def callback():
     return 'OK'
 
 
-@handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    text = event.message.text
+    if '天気' in text:
+        line_bot_api.reply_message(
+            event.reply_token,
+            [
+                TextSendMessage(text='位置情報を教えてください。'),
+                TextSendMessage(text='line://nv/location')
+            ]
+        )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=event.message.text)
+        )
+
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_location(event):
+    text = event.message.address
+
+    result = sc.get_weather_from_location(text)
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        TextSendMessage(text=result)
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
