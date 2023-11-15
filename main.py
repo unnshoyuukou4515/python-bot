@@ -13,7 +13,7 @@ from linebot.models import (
 from linebot.exceptions import LineBotApiError
 
 import scrape as sc
-
+import urllib3.request
 from geopy.distance import geodesic
 
 import os
@@ -82,7 +82,7 @@ def handle_location(event):
     user_id = event.source.user_id
     user_location = (event.message.latitude, event.message.longitude)
 
-    if user_requests.get(user_id) == 'weather':
+    if user_requests.get(user_id) == '天気':
         result = sc.get_weather_from_location_JP(event.message.address)
     elif user_requests.get(user_id) == 'cc':
     
