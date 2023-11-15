@@ -78,12 +78,17 @@ def handle_location(event):
     user_id = event.source.user_id
     user_location = (event.message.latitude, event.message.longitude)
 
-    # ユーザーの最後のリクエストに基づいて処理を分岐
+
     if user_requests.get(user_id) == 'cc':
         distance = geodesic(user_location, CC_location).kilometers
         result = f'You are {distance:.2f} km away from Code Chrysalis.'
-    else:  # '天気' またはその他のリクエストの場合
+
+    elif user_requests.get(user_id) == '天気':
         result = sc.get_weather_from_location_JP(event.message.address)
+    
+    else : 
+        result = 'error or faild' 
+
 
     line_bot_api.reply_message(
         event.reply_token,
