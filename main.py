@@ -37,17 +37,6 @@ def callback():
         abort(400)
     return 'OK'
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-  text = event.message.text
-  if '天気' in text:
-    line_bot_api.reply_message(
-      event.reply_token,
-      [
-      TextSendMessage(text='位置情報を教えてください。'),
-      TextSendMessage(text='line://nv/location')
-      ]
-    )
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_message(event):
