@@ -6,19 +6,22 @@ from linebot.exceptions import (
     InvalidSignatureError, LineBotApiError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, LocationMessage
+    MessageEvent, TextMessage, TextSendMessage, LocationMessage, ImageSendMessage
 )
 from linebot.v3.messaging import MessagingApi
 import scrape as sc
 from geopy.distance import geodesic
 import os
+import requests
 
 app = Flask(__name__)
 
 
 user_requests = {}
 
-# 環境変数
+HOTPEPPER_API_KEY = "54ff6a2bad6c6ffb";
+HOTPEPPER_API_URL = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/";
+# https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=54ff6a2bad6c6ffb&lat=34.67&lng=135.52&range=2&order=4
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
 
@@ -48,7 +51,7 @@ def handle_message(event):
 
 
     text = event.message.text
-    if '天気' in text:
+    if 'weatherjp' in text:
         line_bot_api.reply_message(
             event.reply_token,
             [
@@ -70,6 +73,14 @@ def handle_message(event):
             event.reply_token,
             [TextSendMessage(text=result)]
         )
+    elif 'food' in text:
+        line_bot_api.reply_message(
+            event.reply_token,
+            [
+                TextSendMessage(text='Your location Please'),
+                TextSendMessage(text='line://nv/location')
+            ]
+        )        
 
     else:
         line_bot_api.reply_message(
@@ -90,9 +101,29 @@ def handle_location(event):
         distance = geodesic(user_location, CC_location).kilometers
         result = f'You are {distance:.2f} km away from Code Chrysalis.'
 
-    elif user_requests.get(user_id) == '天気':
+    elif user_requests.get(user_id) == 'weatherjp':
         result = sc.get_weather_from_location_JP(event.message.address)
-        print (result)
+    
+    elif user_requests.get(user_id) == 'food':
+        latitude, longitude = user_location
+        url = f"{HOTPEPPER_API_URL}?key={HOTPEPPER_API_KEY}&lat={latitude}&lng={longitude}&range=2&order=4&format=json"
+        response = requests.get(url)
+        data = response.json()
+        messages = []
+
+        if data['results']['shop']:
+            for shop in data['results']['shop'][:3]: 
+                name = shop['name']
+                logo_image = shop['logo_image']
+
+                messages.append(TextSendMessage(text=name))
+                messages.append(ImageSendMessage(original_content_url=logo_image, preview_image_url=logo_image))
+        else:
+            messages.append(TextSendMessage(text="not found"))
+        line_bot_api.reply_message(event.reply_token, messages)
+
+
+    
     
     else : 
         result = 'error or faild' 

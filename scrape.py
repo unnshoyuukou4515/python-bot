@@ -31,7 +31,7 @@ def get_weather_from_location_JP(original_location):
   weather_info = [(time[i], weather[i], temperature[i]) for i in range(8)]
 
   result = [('{0[0]}: {0[1]}, {0[2]}°C'.format(weather_info[i])) for i in range(8)]
-  result = ('{}\nの今日の天気は\n'.format(original_location) + '\n'.join(result) + '\nです。')
+  result = (format(original_location) + '\n'.join(result) + '\n')
 
   return result
 
@@ -44,7 +44,7 @@ def get_weather_from_english():
     html_content = response.content
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    target_elements = soup.find_all( id ='module-weather-details')
+    target_elements = soup.find_all( class_= "Py(10px) Px(4px) Fz(0.8125rem)" )
 
     target_texts = [element.get_text() for element in target_elements]
 
