@@ -79,7 +79,7 @@ def handle_message(event):
 
 
 
-    CC_location = (35.6547486111, 139.7307916667)
+CC_location = (35.6547486111, 139.7307916667)
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
     user_id = event.source.user_id
