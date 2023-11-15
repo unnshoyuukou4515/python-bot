@@ -14,7 +14,6 @@ from geopy.distance import geodesic
 import os
 
 app = Flask(__name__)
-user_requests = {}
 
 # 環境変数
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
