@@ -88,9 +88,9 @@ def handle_location(event):
         result = f'You are {distance:.2f} km away from Code Chrysalis.'
 
     messaging_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=result)
-    )
+    event.reply_token,
+    [TextSendMessage(text=result)]
+)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
