@@ -38,18 +38,15 @@ def get_weather_from_location_JP(original_location):
 
 
 def get_weather_from_english():
-    url = "https://www.wunderground.com/hourly/jp/tokyo"
-    r = requests.get(url)
-    soup = BeautifulSoup(r.text, 'html.parser')
+    url = "https://www.accuweather.com/en/jp/tokyo/226396/daily-weather-forecast/226396"
+    response = requests.get(url)
+    html_content = response.content
+    soup = BeautifulSoup(html_content, 'html.parser')
 
-    forecast_table = soup.find(id="hourly-forecast-table")
+    target_div = soup.find('div', {'data-qa': 'dailyCard0'})
 
-    rows = forecast_table.find_all("tr")
-    weather_info = []
-
-    for row in rows:
-
-        weather_info.append(row.get_text(strip=True))
-
-    final_result = '\n'.join(weather_info)
-    return final_result
+    if target_div:
+        return target_div.get_text()
+    else:
+        return "couldnt find data"
+    
