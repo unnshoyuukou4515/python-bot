@@ -21,13 +21,13 @@ def get_weather_from_location_JP(original_location):
   for each in content[1:]:
     info.append(each.get_text().strip('\n'))
 
- 
+
   time = info[:8]
- 
+
   weather = info[9:17]
- 
+
   temperature = info[18:26]
- 
+
   weather_info = [(time[i], weather[i], temperature[i]) for i in range(8)]
 
   result = [('{0[0]}: {0[1]}, {0[2]}°C'.format(weather_info[i])) for i in range(8)]
@@ -38,16 +38,21 @@ def get_weather_from_location_JP(original_location):
 
 
 def get_weather_from_english():
-    url = "https://www.yahoo.com/news/weather/tokyo"
+    url = "https://www.theweathernetwork.com/jp/weather/tokyo/tokyo"
     
     response = requests.get(url)
     html_content = response.content
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    weather_elements = soup.find_all('p', class_='My(10px)')
+    today_target = soup.find_all( class_='wx-content current-obs')
+    if today_target:
+      
+        target_elements = today_target.find_all('div')
 
-    weather_texts = [element.get_text() for element in weather_elements]
+        target_texts = [element.get_text(strip=True) for element in target_elements]
 
-    return '\n'.join(weather_texts)
+        return '\n'.join(target_texts)
+    else:
+        return "error or not found"
 
     
