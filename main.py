@@ -81,6 +81,7 @@ CC_location = ( 35.6547486111, 139.7307916667 )
 def handle_location(event):
     user_id = event.source.user_id
     user_location = (event.message.latitude, event.message.longitude)
+    result = "faild to reply"
 
     if user_requests.get(user_id) == '天気':
         result = sc.get_weather_from_location_JP(event.message.address)
