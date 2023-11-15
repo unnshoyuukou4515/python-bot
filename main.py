@@ -1,33 +1,27 @@
-
 from flask import Flask, request, abort
-
 from linebot import (
     LineBotApi, WebhookHandler
 )
 from linebot.exceptions import (
-    InvalidSignatureError
+    InvalidSignatureError, LineBotApiError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,LocationMessage
+    MessageEvent, TextMessage, TextSendMessage, LocationMessage
 )
-from linebot.exceptions import LineBotApiError
-
+from linebot.v3.messaging import MessagingApi
 import scrape as sc
-# import urllib3.request
 from geopy.distance import geodesic
-
 import os
 
-
 app = Flask(__name__)
-
 user_requests = {}
 
-#環境変数
+# 環境変数
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
 
 line_bot_api = LineBotApi(YOUR_CHANNEL_ACCESS_TOKEN)
+messaging_api = MessagingApi(line_bot_api)
 handler = WebhookHandler(YOUR_CHANNEL_SECRET)
 
 @app.route("/callback", methods=['POST'])
@@ -49,9 +43,12 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
     text = event.message.text
+    user_requests[user_id] = text
+
     if '天気' in text:
-        line_bot_api.reply_message(
+        messaging_api.reply_message(
             event.reply_token,
             [
                 TextSendMessage(text='Your location Please'),
@@ -60,42 +57,41 @@ def handle_message(event):
         )
     elif 'weather' in text:
         result = sc.get_weather_from_english()
-        line_bot_api.reply_message(
+        messaging_api.reply_message(
             event.reply_token,
             TextSendMessage(text=result)
         )
-    elif 'CC' in text: 
-        line_bot_api.reply_message(
+    elif 'CC' in text:
+        messaging_api.reply_message(
             event.reply_token,
             [TextSendMessage(text='Your location Please'), 
-            TextSendMessage(text='line://nv/location')]
+             TextSendMessage(text='line://nv/location')]
         )
     else:
-        line_bot_api.reply_message(
+        messaging_api.reply_message(
             event.reply_token,
             TextSendMessage(text=event.message.text)
         )
-CC_location = ( 35.6547486111, 139.7307916667 )
+
+CC_location = (35.6547486111, 139.7307916667)
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
     user_id = event.source.user_id
     user_location = (event.message.latitude, event.message.longitude)
-    result = "faild to reply"
+    result = "Failed to process request"
 
     if user_requests.get(user_id) == '天気':
         result = sc.get_weather_from_location_JP(event.message.address)
-    elif user_requests.get(user_id) == 'cc':
-    
+    elif user_requests.get(user_id) == 'CC':
         distance = geodesic(user_location, CC_location).kilometers
-        result = f'You are  {distance:.2f} km away from Code Chrysalis'
+        result = f'You are {distance:.2f} km away from Code Chrysalis.'
 
-    line_bot_api.reply_message(
+    messaging_api.reply_message(
         event.reply_token,
         TextSendMessage(text=result)
     )
 
 if __name__ == "__main__":
-#    app.run()
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
