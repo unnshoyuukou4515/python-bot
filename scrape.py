@@ -38,15 +38,16 @@ def get_weather_from_location_JP(original_location):
 
 
 def get_weather_from_english():
-    url = "https://www.accuweather.com/en/jp/tokyo/226396/daily-weather-forecast/226396"
+    url = "https://www.yahoo.com/news/weather/tokyo"
+    
     response = requests.get(url)
     html_content = response.content
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    target_div = soup.find('div', {'data-qa': 'dailyCard0'})
+    weather_elements = soup.find_all('p', class_='My(10px)')
 
-    if target_div:
-        return target_div.get_text()
-    else:
-        return "couldnt find data"
+    weather_texts = [element.get_text() for element in weather_elements]
+
+    return '\n'.join(weather_texts)
+
     
