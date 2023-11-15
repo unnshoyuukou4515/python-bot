@@ -92,6 +92,7 @@ def handle_location(event):
 
     elif user_requests.get(user_id) == '天気':
         result = sc.get_weather_from_location_JP(event.message.address)
+        print (result)
     
     else : 
         result = 'error or faild' 
