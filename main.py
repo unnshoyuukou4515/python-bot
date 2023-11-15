@@ -42,6 +42,11 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
+    text = event.message.text
+    user_requests[user_id] = text
+
+
     text = event.message.text
     if '天気' in text:
         line_bot_api.reply_message(
@@ -71,8 +76,10 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=event.message.text)
         )
-        
-CC_location = (35.6547486111, 139.7307916667)
+
+
+
+    CC_location = (35.6547486111, 139.7307916667)
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
     user_id = event.source.user_id
@@ -97,9 +104,5 @@ def handle_location(event):
 
 if __name__ == "__main__":
 #    app.run()
-    port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
