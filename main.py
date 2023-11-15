@@ -13,7 +13,7 @@ from linebot.models import (
 from linebot.exceptions import LineBotApiError
 
 import scrape as sc
-import urllib3.request
+# import urllib3.request
 from geopy.distance import geodesic
 
 import os
