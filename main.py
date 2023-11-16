@@ -112,7 +112,7 @@ def handle_location(event):
         messages = []
 
         if data['results']['shop']:
-            for shop in data['results']['shop'][:3]: 
+            for shop in data['results']['shop'][:2]: 
                 name = shop['name']
                 logo_image = shop['logo_image']
 
