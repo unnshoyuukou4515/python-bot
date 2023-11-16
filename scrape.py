@@ -8,26 +8,27 @@ def get_weather_from_location_JP(original_location):
   location = re.findall('\d{3}-\d{4}', original_location)
   # postal code
   url = "https://weather.yahoo.co.jp/weather/search/?p=" + location[0]
-  r = requests.get(url)
-  soup = BeautifulSoup(r.text, 'html.parser')
+  firstpage_scrape = requests.get(url)
+  soup = BeautifulSoup(firstpage_scrape.text, 'html.parser')
   content = soup.find(class_="serch-table")
-  #inside that page includes url for the weather forcast for that area
-  location_url = content.find('a').get('href')
-  r = requests.get(location_url)
-  soup = BeautifulSoup(r.text, 'html.parser')
-  content = soup.find(id='yjw_pinpoint_today').find_all('td')
+  secondtarget_url = content.find('a').get('href')
+
+
+  actualpage = requests.get(secondtarget_url)
+  soup = BeautifulSoup(actualpage.text, 'html.parser')
+  weather = soup.find(id='yjw_pinpoint_today').find_all('td')
   info = []
 
-  for each in content[1:]:
+  for each in weather[1:]:
     info.append(each.get_text().strip('\n'))
 
- 
+
   time = info[:8]
- 
+
   weather = info[9:17]
- 
+
   temperature = info[18:26]
- 
+
   weather_info = [(time[i], weather[i], temperature[i]) for i in range(8)]
 
   result = [('{0[0]}: {0[1]}, {0[2]}°C'.format(weather_info[i])) for i in range(8)]
