@@ -38,6 +38,7 @@ def get_weather_from_location_JP(original_location):
 
 
 
+
 def get_weather_from_english():
     url = "https://www.yahoo.com/news/weather/tokyo"
     
